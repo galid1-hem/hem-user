@@ -1,0 +1,5 @@
+hem:
+  token:
+    expiration:
+      auth: 2
+      refresh: 30
