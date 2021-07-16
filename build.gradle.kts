@@ -22,8 +22,9 @@ dependencies {
     implementation("io.springfox:springfox-swagger-ui:_")
 
     // jwt
-    implementation("com.auth0:java-jwt:_")
-    implementation("org.bouncycastle:bcprov-jdk15on:_")
+    implementation("io.jsonwebtoken:jjwt-api:_")
+    implementation("io.jsonwebtoken:jjwt-impl:_")
+    implementation("io.jsonwebtoken:jjwt-jackson:_")
 
     // security crypto
     implementation("org.springframework.security:spring-security-crypto:_")

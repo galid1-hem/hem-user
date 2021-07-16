@@ -2,7 +2,6 @@ package com.galid.hemuser.service
 
 import com.galid.hemuser.domain.user.UserRepository
 import org.mockito.BDDMockito.given
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.SpyBean
@@ -43,15 +42,14 @@ internal class TokenServiceTest {
         assertFails { tokenService.verifyToken(expiredToken) }
     }
 
-    @Test
+  @Test
     fun `auth token contains userId`() {
         val refreshToken = tokenService.createRefreshToken(TEST_USER_ID)
         val authToken = tokenService.renewAuthToken(refreshToken)
 
         val decodedAuthToken = tokenService.verifyToken(authToken)
-        val decodedUserId = decodedAuthToken.claims["userId"].toString().replace("\"", "")
 
-        assertEquals(TEST_USER_ID.toString(), decodedUserId)
+        assertEquals(TEST_USER_ID.toInt(), decodedAuthToken.body.get("userId"))
     }
 
     // 토큰을 찾는것이 더 빠르지만 차이는 미미하며, 따라서 데이터베이스에 굳이 저장하지 않고 반환해도 될 것 같다
