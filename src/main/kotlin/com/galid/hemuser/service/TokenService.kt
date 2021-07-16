@@ -53,6 +53,7 @@ class TokenService: ApplicationContextAware {
     }
 
     override fun setApplicationContext(ctx: ApplicationContext) {
+        //TODO 여기서 키쌍이 생성되므로 이것을 다른 곳에서 생성해서 나누어야 함!
         keyPair = Keys.keyPairFor(SignatureAlgorithm.RS256)
         jwtParser = Jwts.parserBuilder()
             .setSigningKey(keyPair.private)
