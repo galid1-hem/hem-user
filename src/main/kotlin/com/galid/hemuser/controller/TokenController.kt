@@ -1,6 +1,6 @@
 package com.galid.hemuser.controller
 
-import com.galid.hemuser.service.TokenService
+import com.galid.hemuser.infra.TokenServiceImpl
 import com.galid.hemuser.service.dto.TokenDto
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/v1/tokens")
 class TokenController(
-    private val tokenService: TokenService
+    private val tokenServiceImpl: TokenServiceImpl
 ) {
     @PutMapping
     fun renewAuthToken(
@@ -18,7 +18,7 @@ class TokenController(
     ): Response<TokenDto.RenewAuthTokenResponse> {
         return Response(
             data = TokenDto.RenewAuthTokenResponse(
-                tokenService.renewAuthToken(request.refreshToken)
+                tokenServiceImpl.renewAuthToken(request.refreshToken)
             )
         )
     }

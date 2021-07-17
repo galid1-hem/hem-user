@@ -1,19 +1,10 @@
 package com.galid.hemuser.service
 
-import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.stereotype.Service
+import com.galid.hemuser.domain.user.UserEntity
+import com.galid.hemuser.service.dto.UserDto
 
-@Service
-class LoginService(
-    private val encoder: PasswordEncoder
-) {
+interface LoginService {
     fun validateLoginInfo(
-        requestPassword: String,
-        storedPassword: String
-    ) {
-        val encodedRequestPassword = encoder.encode(requestPassword)
-
-        if (! encoder.matches(encodedRequestPassword, storedPassword))
-            throw RuntimeException("비밀번호가 일치하지 않습니다.")
-    }
+        request: UserDto.LoginRequest
+    ): UserEntity
 }

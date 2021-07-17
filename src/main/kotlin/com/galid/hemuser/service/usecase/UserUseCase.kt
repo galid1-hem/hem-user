@@ -1,18 +1,19 @@
-package com.galid.hemuser.service
+package com.galid.hemuser.service.usecase
 
 import com.galid.hemuser.domain.user.UserAccount
 import com.galid.hemuser.domain.user.UserEntity
 import com.galid.hemuser.domain.user.UserPrivateInformation
 import com.galid.hemuser.domain.user.UserRepository
+import com.galid.hemuser.service.LoginService
+import com.galid.hemuser.service.TokenService
 import com.galid.hemuser.service.dto.UserDto
-import com.galid.hemuser.service.dto.UserDto.*
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional(readOnly = true)
-class UserService(
+class UserUseCase(
     private val userRepository: UserRepository,
     private val loginService: LoginService,
     private val encoder: PasswordEncoder,
@@ -20,8 +21,8 @@ class UserService(
 ) {
     @Transactional(readOnly = false)
     fun join(
-        request: JoinRequest
-    ): JoinResponse {
+        request: UserDto.JoinRequest
+    ): UserDto.JoinResponse {
         val newUser = UserEntity(
             userAccount = UserAccount(
                 accountId = request.accountId,
@@ -36,30 +37,23 @@ class UserService(
 
         val savedUser = userRepository.save(newUser)
 
-        return JoinResponse(
+        return UserDto.JoinResponse(
             id = savedUser.id!!,
         )
     }
 
     @Transactional(readOnly = false)
     fun login(
-        request: LoginRequest
-    ): LoginResponse {
-        // user 찾기
-        val foundUser = userRepository.findByUserAccount_AccountId(request.accountId)
-            .orElseThrow { throw RuntimeException("존재하지 않는 ID입니다.") }
-
+        request: UserDto.LoginRequest
+    ): UserDto.LoginResponse {
         // login 정보 검증
-        loginService.validateLoginInfo(
-            requestPassword = request.password,
-            storedPassword = foundUser.userAccount.password
-        )
+        val foundUser = loginService.validateLoginInfo(request)
 
         // token 발급
         val refreshToken = tokenService.createRefreshToken(foundUser.id!!)
         val authToken = tokenService.renewAuthToken(refreshToken)
 
-        return LoginResponse(
+        return UserDto.LoginResponse(
             id = foundUser.id!!,
             refreshToken = refreshToken,
             authToken = authToken
@@ -68,13 +62,19 @@ class UserService(
 
     fun getUser(
         userId: Long
-    ): UserResponse {
+    ): UserDto.UserResponse {
         val userEntity = userRepository.findById(userId)
             .orElseThrow { throw RuntimeException("존재하지 않는 유저입니다.") }
 
-        return UserResponse(
+        return fromUserEntity(userEntity)
+    }
+
+    internal fun fromUserEntity(
+        userEntity: UserEntity
+    ): UserDto.UserResponse {
+        return UserDto.UserResponse(
             id = userEntity.id!!,
-            userInformation = UserPrivateInformationDto(
+            userInformation = UserDto.UserPrivateInformationDto(
                 profileImageUrl = userEntity.userInformation.profileImageUrl,
                 nickName = userEntity.userInformation.nickName,
                 email = userEntity.userInformation.email

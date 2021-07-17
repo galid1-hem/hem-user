@@ -1,14 +1,13 @@
-package com.galid.hemuser.service
+package com.galid.hemuser.service.usecase
 
 import com.galid.hemuser.domain.friend.FriendEntity
 import com.galid.hemuser.domain.friend.FriendRepository
 import com.galid.hemuser.service.dto.FriendDto.FriendsResponse
 import org.springframework.stereotype.Service
-import java.lang.RuntimeException
 
 @Service
-class FriendService(
-    private val userService: UserService,
+class FriendUseCase(
+    private val userUseCase: UserUseCase,
     private val friendRepository: FriendRepository
 ) {
     fun getFriendList(
@@ -54,6 +53,6 @@ class FriendService(
     }
 
     private fun validateExistUser(userId: Long) {
-        userService.getUser(userId)
+        userUseCase.getUser(userId)
     }
 }

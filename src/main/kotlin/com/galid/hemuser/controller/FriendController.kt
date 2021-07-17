@@ -1,13 +1,13 @@
 package com.galid.hemuser.controller
 
-import com.galid.hemuser.service.FriendService
+import com.galid.hemuser.service.usecase.FriendUseCase
 import com.galid.hemuser.service.dto.FriendDto
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/friends")
 class FriendController(
-    private val friendService: FriendService
+    private val friendUseCase: FriendUseCase
 ) {
     // TODO PAGINATION
     @GetMapping("/{userId}")
@@ -17,7 +17,7 @@ class FriendController(
         @RequestParam(name = "lastFriendId", required = false) lastFriendId: Long?
     ): Response<FriendDto.FriendsResponse> {
         return Response(
-            data = friendService.getFriendList(userId)
+            data = friendUseCase.getFriendList(userId)
         )
     }
 
@@ -26,7 +26,7 @@ class FriendController(
         @PathVariable("userId") userId: Long,
         @PathVariable("friendId") friendId: Long,
     ): Response<Void> {
-        friendService.makeFriend(
+        friendUseCase.makeFriend(
             userId = userId,
             friendId = friendId
         )
@@ -38,7 +38,7 @@ class FriendController(
         @PathVariable("userId") userId: Long,
         @PathVariable("friendId") friendId: Long,
     ): Response<Void> {
-        friendService.unFriend(
+        friendUseCase.unFriend(
             userId = userId,
             friendId = friendId
         )
