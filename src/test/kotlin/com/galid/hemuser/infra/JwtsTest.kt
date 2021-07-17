@@ -3,6 +3,9 @@ package com.galid.hemuser.infra
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
+import java.io.File
+import java.io.FileOutputStream
+import java.nio.file.Paths
 import java.security.KeyPair
 import java.util.*
 import kotlin.test.Test
@@ -65,5 +68,24 @@ class JwtsTest {
                 .build()
                 .parseClaimsJws(jws)
         }
+    }
+
+    @Test
+    fun `key 파일로 export하기`() {
+        val path = "${System.getProperty("user.home")}/develop/private.pem"
+        val file = File(path).createNewFile()
+        val outputStream = FileOutputStream(path)
+
+        val privateKey = keyPair.private.toString()
+        outputStream.write(privateKey.toByteArray())
+
+//        // given
+//
+//        // when
+//        val fo = FileOutputStream("private.pem")
+//        fo.write(privateKey.toByteArray())
+
+
+        // then
     }
 }

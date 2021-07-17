@@ -4,7 +4,7 @@ import com.galid.hemuser.*
 import com.galid.hemuser.domain.user.UserAccount
 import com.galid.hemuser.domain.user.UserPrivateInformation
 import com.galid.hemuser.domain.user.UserRepository
-import com.galid.hemuser.service.UserService
+import com.galid.hemuser.service.usecase.UserUseCase
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserIntegrationTest {
     @Autowired
-    lateinit var userService: UserService
+    lateinit var userUseCase: UserUseCase
     @Autowired
     lateinit var userRepository: UserRepository
     @Autowired
@@ -38,7 +38,7 @@ class UserIntegrationTest {
             password = TEST_PASSWORD)
 
         // when
-        val createdUserId = userService.join(request).id
+        val createdUserId = userUseCase.join(request).id
         val foundUser = userRepository.findById(createdUserId)
             .get()
 
