@@ -1,5 +1,6 @@
 package com.galid.hemuser.infra
 
+import com.galid.hemuser.domain.user.UserRepository
 import com.galid.hemuser.service.TokenService
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
@@ -10,7 +11,9 @@ import java.security.KeyPair
 import java.util.*
 
 @Service
-class TokenServiceImpl: TokenService, ApplicationContextAware {
+class TokenServiceImpl(
+    private val userRepository: UserRepository
+): TokenService, ApplicationContextAware {
     lateinit var keyPair: KeyPair
     lateinit var jwtParser: JwtParser
 
@@ -20,7 +23,7 @@ class TokenServiceImpl: TokenService, ApplicationContextAware {
         return Jwts.builder()
             .signWith(keyPair.private, ENCRYPTION_ALGORITHM)
             .setIssuer(ISSUER)
-            .addClaims(mapOf("userId" to userId))
+            .addClaims(mapOf(USER_ID_KEY to userId))
             .setExpiration(getExpiration(AuthTokenType.REFRESH))
             .compact()
     }
@@ -29,11 +32,20 @@ class TokenServiceImpl: TokenService, ApplicationContextAware {
         refreshToken: String,
     ): String {
         val parsedToken = verifyToken(refreshToken)
+        val userId = parsedToken.body.get(USER_ID_KEY)
+            .toString()
+            .toLong()
+
+        val foundUser = userRepository.findById(userId)
+            .orElseThrow{ RuntimeException("존재하지 않는 사용자입니다.") }
 
         return Jwts.builder()
             .signWith(keyPair.private, ENCRYPTION_ALGORITHM)
             .setIssuer(ISSUER)
-            .addClaims(mapOf("userId" to parsedToken.body.get("userId")))
+            .addClaims(mapOf(USER_ID_KEY to userId))
+            .addClaims(mapOf(USER_EMAIL_KEY to foundUser.userInformation.email))
+            .addClaims(mapOf(USER_PROFILE_IMAEGE_KEY to foundUser.userInformation.profileImageUrl))
+            .addClaims(mapOf(USER_NICKNAME_KEY to foundUser.userInformation.nickName))
             .compact()
     }
 
@@ -81,6 +93,12 @@ class TokenServiceImpl: TokenService, ApplicationContextAware {
         val ENCRYPTION_ALGORITHM = SignatureAlgorithm.RS256
         val ISSUER = "HEM_USER"
         val DAY = 24 * 60 * 60 * 1000L
+
+        // claim keys
+        val USER_ID_KEY = "userId"
+        val USER_NICKNAME_KEY = "nickName"
+        val USER_PROFILE_IMAEGE_KEY = "profileImage"
+        val USER_EMAIL_KEY = "email"
 
         val DEFAULT_AUTH_TOKEN_EXPIRATION_TIME = 1 * DAY
         val DEFAULT_REFRESH_TOKEN_EXPIRATION_TIME = 30 * DAY
